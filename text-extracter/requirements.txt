@@ -1,0 +1,5 @@
+# Project requirements for PDF Text Extractor
+# Maintained by Soft Game Studio
+
+# Core dependencies
+pymupdf>=1.23.0

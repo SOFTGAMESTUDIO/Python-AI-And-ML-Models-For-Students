@@ -1,0 +1,8 @@
+# Project Machine Learning dependencies for TF-IDF Engine
+# Maintained professionally by Soft Game Studio
+# To install the required resources locally, execute: pip install -r requirements.txt
+
+# scikit-learn is the foundational library utilized for Mathematical Vectorization 
+# (TfidfVectorizer) within tfidf.py and Query Evaluation 
+# (cosine_similarity) calculations inside search.py.
+scikit-learn

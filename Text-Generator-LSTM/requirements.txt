@@ -1,0 +1,7 @@
+# Core Machine Learning & Neural Network Libraries
+tensorflow>=2.13.0
+numpy>=1.24.0
+
+# Optional: Add testing or linting utilities below if needed
+# pytest>=7.1.2
+# flake8>=6.0.0

@@ -1,0 +1,36 @@
+Deep learning is a subset of machine learning, which is essentially a neural network with three or more layers.
+These neural networks attempt to simulate the behavior of the human brain—albeit far from matching its ability—allowing it to “learn” from large amounts of data.
+While a neural network with a single layer can still make approximate predictions, additional hidden layers can help to optimize and refine for accuracy.
+Deep learning drives many artificial intelligence applications and services that improve automation, performing analytical and physical tasks without human intervention.
+Deep learning technology lies behind everyday products and services (such as digital assistants, voice-enabled TV remotes, and credit card fraud detection) as well as emerging technologies (such as self-driving cars).
+Neural networks learn by adjusting weights through a process called backpropagation and using gradient descent.
+The LSTM or long short-term memory network is a special type of recurrent neural network.
+LSTM networks are highly capable of learning long-term dependencies in sequential data, which makes them perfect for text generation.
+Text generation is the task of producing coherent and meaningful human language using a trained AI model.
+Language models predict the next word or character based on previous context windows.
+Machine learning models learn complex patterns from large amounts of structured and unstructured training data.
+Deep learning has consistently achieved state of the art results in natural language processing tasks worldwide.
+Natural language processing includes applications like text classification, sentiment analysis, speech recognition, and machine translation.
+Recurrent neural networks process sequences of data by maintaining a continuous hidden state across time steps.
+The hidden state in a recurrent network acts as a memory of past inputs to understand present context.
+Gradient descent is the optimization algorithm most commonly used to train these deep neural networks effectively.
+Overfitting occurs when a model memorizes training data completely and fails to generalize to any new data.
+Dropout is a regularization technique that randomly disables neurons during training to prevent severe overfitting.
+Word embeddings represent words as dense numerical vectors that accurately capture their semantic meaning.
+The vocabulary of a language model includes all unique words it has observed during the training phase.
+Tokenization is the necessary process of converting raw text sentences into a sequence of tokens or integers.
+Padding is frequently used to make all input sequences the exact same length before feeding them into a neural network.
+The softmax activation function converts raw model outputs into a valid probability distribution over the entire vocabulary.
+The word with the highest predicted probability is commonly selected as the next token during text generation sequences.
+Training a language model effectively requires a massive corpus of text data to properly learn useful patterns.
+Small datasets can cause a model to overfit rapidly and generate repetitive, non-sensical, or broken output text.
+The Adam optimizer dynamically adapts the learning rate during training loops and generally converges much faster than plain gradient descent algorithms.
+Early stopping callbacks monitor the training validation loss and halt the training process when the loss metric stops improving.
+A checkpoint callback automatically saves the very best version of the neural model during training based on a chosen monitored metric.
+Text generators can realistically be used for creative writing assistance, chatbots, autocomplete systems, and data augmentation pipelines.
+The temperature parameter actively controls the randomness or creativity of text generation at inference time.
+A low temperature makes the generated model more confident and highly repetitive, while a high temperature adds significant diversity and risk.
+Sequence models have truly revolutionized the fundamental way modern computers understand, process, and generate human language.
+Data preprocessing remains a highly critical step that directly and heavily impacts the final quality of a trained language model performance.
+Artificial intelligence relies on vast datasets to build intuition and internal mapping representations over millions of parameters.
+In the future, deep learning systems will become even more parameter efficient and capable of reasoning over vast contextual backgrounds.

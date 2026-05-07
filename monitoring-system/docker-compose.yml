@@ -1,0 +1,40 @@
+# ============================================================
+# Monitoring System — Docker Compose
+# Copyright (c) 2026 Soft Game Studio
+# License: MIT
+# ============================================================
+
+version: "3.9"
+
+services:
+  monitoring-system:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: monitoring-system
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./database:/app/database
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+    networks:
+      - monitor-network
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  monitor-network:
+    driver: bridge

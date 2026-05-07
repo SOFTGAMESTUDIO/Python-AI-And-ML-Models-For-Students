@@ -1,0 +1,33 @@
+# ============================================================
+# Monitoring System — Python Dependencies
+# Copyright (c) 2026 Soft Game Studio
+# ============================================================
+
+# Core HTTP
+requests>=2.31.0
+aiohttp>=3.9.0
+httpx>=0.27.0
+
+# Packet Sniffing (optional — requires Npcap on Windows)
+scapy>=2.5.0
+
+# Web Framework (Dashboard API)
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+
+# Terminal UI
+rich>=13.7.0
+colorama>=0.4.6
+
+# Environment & Configuration
+python-dotenv>=1.0.0
+
+# Database
+aiosqlite>=0.20.0
+
+# Testing
+pytest>=8.1.0
+pytest-asyncio>=0.23.0
+
+# Typing Extensions
+typing-extensions>=4.9.0

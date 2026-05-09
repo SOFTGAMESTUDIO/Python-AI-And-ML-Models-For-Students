@@ -2,3 +2,10 @@ __pycache__/
 *.pyc
 .env
 .venv/
+
+# SQL Injection Detector generated files
+**/reports/
+**/logs/
+**/venv/
+*.sqlite
+*.db

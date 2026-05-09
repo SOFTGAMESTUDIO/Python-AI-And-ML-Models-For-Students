@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Injection Detector - Web Security Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+
+        .logo-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #667eea;
+            background: #f0f0ff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .scan-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .scan-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .url-input {
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .scan-options {
+            margin: 0.5rem 0;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .scan-progress {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 100%;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            color: #666;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-header {
+            margin-bottom: 2rem;
+        }
+
+        .results-header h2 {
+            margin-bottom: 1rem;
+        }
+
+        .results-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card.critical {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .stat-card.high {
+            background: linear-gradient(135deg, #feca57 0%, #ff9f43 100%);
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .vulnerabilities-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .vuln-card {
+            background: #f8f9fa;
+            border-left: 4px solid;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .vuln-card:hover {
+            transform: translateX(5px);
+        }
+
+        .vuln-card.critical {
+            border-left-color: #dc3545;
+        }
+
+        .vuln-card.high {
+            border-left-color: #fd7e14;
+        }
+
+        .vuln-card.medium {
+            border-left-color: #ffc107;
+        }
+
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .vuln-parameter {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .vuln-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .vuln-badge.critical {
+            background: #dc3545;
+            color: white;
+        }
+
+        .vuln-badge.high {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .vuln-payload {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .vuln-evidence {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .reports-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .report-info h4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .report-info p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0.25rem 0;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .docs-content {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .doc-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+
+        .doc-card h3 {
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .doc-card ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .doc-card li {
+            margin: 0.5rem 0;
+            color: #666;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: white;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
+            .results-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                gap: 0.5rem;
+            }
+            
+            .nav-links a {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🛡️</span>
+                <span class="logo-text">SQLi Detector</span>
+            </div>
+            <div class="nav-links">
+                <a class="active" onclick="showSection('scanner')">Scanner</a>
+                <a onclick="showSection('reports')">Reports</a>
+                <a onclick="showSection('docs')">Documentation</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Scanner Section -->
+        <div id="scannerSection" class="section active">
+            <div class="hero">
+                <h1>SQL Injection Vulnerability Scanner</h1>
+                <p>Detect SQL injection vulnerabilities in web applications</p>
+            </div>
+
+            <div class="scan-card">
+                <div class="scan-form">
+                    <div class="input-group">
+                        <label for="targetUrl">Target URL</label>
+                        <input type="url" id="targetUrl" placeholder="https://example.com/page?id=1" class="url-input">
+                    </div>
+                    
+                    <div class="scan-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="deepScan">
+                            <span>Deep Scan (crawl website pages)</span>
+                        </label>
+                    </div>
+                    
+                    <button id="startScan" class="btn-primary">
+                        <span>🔍</span>
+                        Start Scan
+                    </button>
+                </div>
+                
+                <div id="scanProgress" class="scan-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p class="progress-text">Scanning in progress... This may take a few moments</p>
+                </div>
+            </div>
+
+            <div id="results" class="results-section" style="display: none;">
+                <div class="results-header">
+                    <h2>Scan Results</h2>
+                    <div class="results-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalVulns">0</div>
+                            <div class="stat-label">Vulnerabilities Found</div>
+                        </div>
+                        <div class="stat-card critical">
+                            <div class="stat-value" id="criticalVulns">0</div>
+                            <div class="stat-label">Critical</div>
+                        </div>
+                        <div class="stat-card high">
+                            <div class="stat-value" id="highVulns">0</div>
+                            <div class="stat-label">High Risk</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="vulnerabilitiesList" class="vulnerabilities-list"></div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reportsSection" class="section">
+            <div class="hero">
+                <h1>Scan Reports</h1>
+                <p>View and download previous scan results</p>
+            </div>
+            
+            <div id="reportsList" class="reports-list">
+                <div class="loading">Loading reports...</div>
+            </div>
+        </div>
+
+        <!-- Documentation Section -->
+        <div id="docsSection" class="section">
+            <div class="hero">
+                <h1>Documentation</h1>
+                <p>Learn how to use the SQL injection scanner effectively</p>
+            </div>
+            
+            <div class="docs-content">
+                <div class="doc-card">
+                    <h3>⚠️ Legal Disclaimer</h3>
+                    <p>This tool is for educational purposes and authorized testing only. Never scan websites without explicit permission.</p>
+                </div>
+                
+                <div class="doc-card">
+                    <h3>🎯 How It Works</h3>
+                    <p>The scanner tests for SQL injection by:</p>
+                    <ul>
+                        <li>Injecting malicious payloads into parameters</li>
+                        <li>Analyzing responses for database errors</li>
+                        <li>Measuring response times for blind injection</li>
+                        <li>Comparing response content for boolean-based detection</li>
+                    </ul>
+                </div>
+                
+                <div class="doc-card">
+                    <h3>📝 Safe Testing Targets</h3>
+                    <p>Use these for learning:</p>
+                    <ul>
+                        <li>http://testphp.vulnweb.com/ (Demo vulnerable site)</li>
+                        <li>OWASP Juice Shop (localhost:3000)</li>
+                        <li>Your own test applications</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Section navigation
+        function showSection(section) {
+            // Hide all sections
+            document.getElementById('scannerSection').classList.remove('active');
+            document.getElementById('reportsSection').classList.remove('active');
+            document.getElementById('docsSection').classList.remove('active');
+            
+            // Show selected section
+            if (section === 'scanner') {
+                document.getElementById('scannerSection').classList.add('active');
+            } else if (section === 'reports') {
+                document.getElementById('reportsSection').classList.add('active');
+                loadReports();
+            } else if (section === 'docs') {
+                document.getElementById('docsSection').classList.add('active');
+            }
+            
+            // Update active nav link
+            const navLinks = document.querySelectorAll('.nav-links a');
+            navLinks.forEach((link, index) => {
+                if ((section === 'scanner' && index === 0) ||
+                    (section === 'reports' && index === 1) ||
+                    (section === 'docs' && index === 2)) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+        
+        // Show toast message
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            toast.style.background = type === 'error' ? '#dc3545' : '#28a745';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Start Scan
+        document.getElementById('startScan').addEventListener('click', async () => {
+            const url = document.getElementById('targetUrl').value.trim();
+            if (!url) {
+                showToast('Please enter a URL to scan', 'error');
+                return;
+            }
+            
+            let targetUrl = url;
+            if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+                targetUrl = 'https://' + targetUrl;
+            }
+            
+            const deepScan = document.getElementById('deepScan').checked;
+            
+            // Show progress
+            document.getElementById('scanProgress').style.display = 'block';
+            document.getElementById('startScan').disabled = true;
+            document.getElementById('results').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: targetUrl, deep_scan: deepScan })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showToast(data.error, 'error');
+                    return;
+                }
+                
+                if (data.success) {
+                    displayResults(data);
+                    showToast(`Scan completed! Found ${data.total_vulnerabilities} vulnerabilities`, 'success');
+                } else {
+                    showToast('Scan failed', 'error');
+                }
+            } catch (error) {
+                showToast('Error connecting to server', 'error');
+                console.error('Scan error:', error);
+            } finally {
+                document.getElementById('scanProgress').style.display = 'none';
+                document.getElementById('startScan').disabled = false;
+            }
+        });
+        
+        // Display Results
+        function displayResults(data) {
+            const resultsSection = document.getElementById('results');
+            resultsSection.style.display = 'block';
+            
+            // Update statistics
+            const totalVulns = data.vulnerabilities.length;
+            const criticalVulns = data.vulnerabilities.filter(v => v.severity === 'CRITICAL').length;
+            const highVulns = data.vulnerabilities.filter(v => v.severity === 'HIGH').length;
+            
+            document.getElementById('totalVulns').textContent = totalVulns;
+            document.getElementById('criticalVulns').textContent = criticalVulns;
+            document.getElementById('highVulns').textContent = highVulns;
+            
+            // Display vulnerabilities
+            const vulnList = document.getElementById('vulnerabilitiesList');
+            
+            if (totalVulns === 0) {
+                vulnList.innerHTML = `
+                    <div class="vuln-card">
+                        <div style="text-align: center; padding: 2rem;">
+                            <h3>✅ No SQL Injection Vulnerabilities Found</h3>
+                            <p>The website appears to be secure against basic SQL injection attacks.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            vulnList.innerHTML = data.vulnerabilities.map(vuln => `
+                <div class="vuln-card ${vuln.severity.toLowerCase()}">
+                    <div class="vuln-header">
+                        <span class="vuln-parameter">Parameter: ${escapeHtml(vuln.parameter)}</span>
+                        <span class="vuln-badge ${vuln.severity.toLowerCase()}">${vuln.severity}</span>
+                    </div>
+                    <div class="vuln-header">
+                        <span style="font-size: 0.9rem; color: #666;">Type: ${escapeHtml(vuln.type)}</span>
+                        <span style="font-size: 0.9rem; color: #666;">Location: ${escapeHtml(vuln.location)}</span>
+                    </div>
+                    <div class="vuln-payload">
+                        <strong>Payload:</strong> ${escapeHtml(vuln.payload)}
+                    </div>
+                    <div class="vuln-evidence">
+                        <strong>Evidence:</strong> ${escapeHtml(vuln.evidence)}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Load Reports
+        async function loadReports() {
+            const reportsList = document.getElementById('reportsList');
+            reportsList.innerHTML = '<div class="loading">Loading reports...</div>';
+            
+            try {
+                const response = await fetch('/api/reports');
+                const data = await response.json();
+                
+                if (data.reports && data.reports.length > 0) {
+                    reportsList.innerHTML = data.reports.map(report => `
+                        <div class="report-card">
+                            <div class="report-info">
+                                <h4>${escapeHtml(report.target)}</h4>
+                                <p>Scan ID: ${escapeHtml(report.scan_id)}</p>
+                                <p>Date: ${new Date(report.timestamp).toLocaleString()}</p>
+                                <p>Found: ${report.vulnerabilities} vulnerabilities</p>
+                            </div>
+                            <div class="report-actions">
+                                <button class="btn-secondary" onclick="viewReport('${report.filename}')">View</button>
+                                <button class="btn-secondary" onclick="downloadReport('${report.filename}')">Download</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    reportsList.innerHTML = '<div class="loading">No reports found. Start a scan to generate reports.</div>';
+                }
+            } catch (error) {
+                reportsList.innerHTML = '<div class="loading">Error loading reports</div>';
+                console.error('Error loading reports:', error);
+            }
+        }
+        
+        // View Report
+        window.viewReport = async (filename) => {
+            try {
+                const response = await fetch(`/api/reports/${filename}`);
+                const data = await response.json();
+                
+                const reportContent = JSON.stringify(data, null, 2);
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+                modal.style.zIndex = '1000';
+                modal.style.display = 'flex';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
+                
+                modal.innerHTML = `
+                    <div style="background: white; border-radius: 10px; max-width: 90%; max-height: 90%; overflow: auto; padding: 2rem;">
+                        <h2>Scan Report</h2>
+                        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 5px; overflow-x: auto; font-size: 12px;">${escapeHtml(reportContent)}</pre>
+                        <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 1rem; padding: 0.5rem 1rem; cursor: pointer;">Close</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+            } catch (error) {
+                showToast('Error loading report', 'error');
+            }
+        };
+        
+        // Download Report
+        window.downloadReport = (filename) => {
+            window.open(`/api/export/${filename}`, '_blank');
+            showToast('Downloading report...', 'success');
+        };
+        
+        // Initialize
+        console.log('SQL Injection Detector loaded');
+    </script>
+</body>
+</html>
